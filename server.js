@@ -85,6 +85,28 @@ app.post("/signin", async (req, res) => {
   }
 });
 
+// ✅ Product Schema
+const productSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  description: { type: String },
+  price: { type: Number, required: true },
+  imageUrl: { type: String },
+});
+
+const Product = mongoose.model("Product", productSchema);
+
+// ✅ Get Products API
+app.get("/products", async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    console.error("Get products error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Start server
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
