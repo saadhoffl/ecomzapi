@@ -107,6 +107,20 @@ app.get("/products", async (req, res) => {
   }
 });
 
+// ✅ Get single product by id
+app.get("/product/:id", async (req, res) => {
+  try {
+    const product = await Product.findOne({ id: req.params.id });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json(product);
+  } catch (err) {
+    console.error("Get product error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Start server
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
