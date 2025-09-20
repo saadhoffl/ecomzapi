@@ -121,6 +121,74 @@ app.get("/product/:id", async (req, res) => {
   }
 });
 
+app.post("/add_product", async (req, res) => {
+  try {
+    const { v4: uuidv4 } = await import("uuid");
+    const { title, description, price, imageUrl } = req.body;
+
+    // Validate required fields
+    if (!title || !price) {
+      return res.status(400).json({ message: "title and price are required" });
+    }
+
+    // Generate random id
+    const id = uuidv4();
+
+    // Create new product
+    const newProduct = new Product({ id, title, description, price, imageUrl });
+    await newProduct.save();
+
+    res
+      .status(201)
+      .json({ message: "Product added successfully", product: newProduct });
+  } catch (err) {
+    console.error("Add product error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// ✅ Edit Product API
+app.put("/edit_product/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const updatedProduct = await Product.findOneAndUpdate({ id }, updateData, {
+      new: true,
+    });
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json({
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
+  } catch (err) {
+    console.error("Edit product error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// ✅ Delete Product API
+app.delete("/delete_product/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedProduct = await Product.findOneAndDelete({ id });
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json({ message: "Product deleted successfully" });
+  } catch (err) {
+    console.error("Delete product error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Start server
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
